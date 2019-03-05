@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_openDays"
+        android:icon="@drawable/ic_list_black_24dp"
+        android:title="@string/title_openDays" />
+
+    <item
+        android:id="@+id/navigation_signup"
+        android:icon="@drawable/ic_content_paste_black_24dp"
+        android:title="@string/title_signup" />
+
+    <item
+        android:id="@+id/navigation_notifications"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="@string/title_notifications" />
+    <item
+        android:id="@+id/navigation_route"
+        android:icon="@drawable/ic_directions_car_black_24dp"
+        android:title="@string/title_route" />
+
+</menu>
