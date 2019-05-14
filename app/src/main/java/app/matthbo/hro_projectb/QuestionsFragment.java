@@ -1,38 +1,47 @@
 package app.matthbo.hro_projectb;
 
-
 import android.content.Intent;
+import android.icu.lang.UScript;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
-public class QuestionsFragment extends Fragment {
-
+public class QuestionsFragment extends Fragment implements FragmentOnClickable{
+    private View fragmentView;
 
     public QuestionsFragment() {
         // Required empty public constructor
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_questions, container, false);
+        fragmentView = inflater.inflate(R.layout.fragment_questions, container, false);
+
+        return fragmentView;
     }
 
-    public void sendEmail(View view){
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent.setType("text/plain");
+    @Override
+    public void fragmentOnClick(View v) {
+        if (v.getId() == R.id.button_questions_send) {
+            sendEmail();
+        }
+    }
+
+    private void sendEmail(){
         String[] addresses = new String[] {"noreply@hr.nl"};
-        String shareSub = "";
-        String shareBody = "";
+        String shareSub = ((EditText)fragmentView.findViewById(R.id.editText_questions_subject)).getText().toString();
+        String shareBody = ((EditText)fragmentView.findViewById(R.id.editText_questions_body)).getText().toString();
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.putExtra(Intent.EXTRA_EMAIL, addresses);
         emailIntent.putExtra(Intent.EXTRA_SUBJECT,shareSub);
         emailIntent.putExtra(Intent.EXTRA_TEXT,shareBody);
@@ -40,5 +49,4 @@ public class QuestionsFragment extends Fragment {
             startActivity(emailIntent);
         }
     }
-
 }

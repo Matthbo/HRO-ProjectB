@@ -8,19 +8,23 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentOnClickable {
 
     private ActionBar toolbar;
+    private Fragment fragment;
+    private FragmentOnClickable clickableFragment;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment fragment;
+
             switch (item.getItemId()) {
                 case R.id.navigation_openDays:
                     toolbar.setTitle(getResources().getString(R.string.title_openDays));
@@ -62,8 +66,23 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        toolbar.setTitle("Open Days");
-        loadFragment(new OpenDaysFragment());
+        if (savedInstanceState != null) {
+            //Restore the fragment's instance
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, "currentFragement");
+            loadFragment(fragment);
+        } else {
+            toolbar.setTitle("Open Days");
+            fragment = new OpenDaysFragment();
+            loadFragment(fragment);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's instance
+        getSupportFragmentManager().putFragment(outState, "currentFragement", fragment);
     }
 
     private void loadFragment(Fragment fragment){
@@ -71,6 +90,16 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.frame_container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+
+        if(fragment instanceof FragmentOnClickable) {
+            clickableFragment = (FragmentOnClickable)fragment;
+        } else {
+            clickableFragment = null;
+        }
+    }
+
+    public void fragmentOnClick(View v){
+        if(clickableFragment != null) clickableFragment.fragmentOnClick(v);
     }
 
 }
