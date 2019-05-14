@@ -23,22 +23,27 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment;
             switch (item.getItemId()) {
                 case R.id.navigation_openDays:
-                    toolbar.setTitle("Open Days");
+                    toolbar.setTitle(getResources().getString(R.string.title_openDays));
                     fragment = new OpenDaysFragment();
                     loadFragment(fragment);
                     return true;
+                case R.id.navigation_question:
+                    toolbar.setTitle(getResources().getString(R.string.title_question));
+                    fragment = new QuestionsFragment();
+                    loadFragment(fragment);
+                    return true;
                 case R.id.navigation_signup:
-                    toolbar.setTitle("Sign up");
+                    toolbar.setTitle(getResources().getString(R.string.title_signup));
                     fragment = new SignupFragment();
                     loadFragment(fragment);
                     return true;
                 case R.id.navigation_notifications:
-                    toolbar.setTitle("Notifications");
+                    toolbar.setTitle(getResources().getString(R.string.title_notifications));
                     fragment = new NotificationsFragment();
                     loadFragment(fragment);
                     return true;
                 case R.id.navigation_route:
-                    toolbar.setTitle("Navigation");
+                    toolbar.setTitle(getResources().getString(R.string.title_route));
                     fragment = new NavigationFragment();
                     loadFragment(fragment);
                     return true;

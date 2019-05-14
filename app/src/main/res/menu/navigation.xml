@@ -7,6 +7,10 @@
         android:title="@string/title_openDays" />
 
     <item
+        android:id="@+id/navigation_question"
+        android:icon="@drawable/ic_help_outline_black_24dp"
+        android:title="@string/title_question" />
+    <item
         android:id="@+id/navigation_signup"
         android:icon="@drawable/ic_content_paste_black_24dp"
         android:title="@string/title_signup" />

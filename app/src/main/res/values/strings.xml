@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">HRO ProjectB</string>
     <string name="title_openDays">Open Days</string>
+    <string name="title_question">Ask a question</string>
     <string name="title_signup">Sign-up</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_route">Navigation</string>
+
+    <string name="editText_questions_subject">Subject</string>
+    <string name="editText_questions_body">Please explain your question</string>
+    <string name="button_questions_send">Send</string>
 </resources>
