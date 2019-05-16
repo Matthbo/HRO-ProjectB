@@ -4,54 +4,85 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements FragmentOnClickable {
 
     private ActionBar toolbar;
-    private Fragment fragment;
+    private BottomNavigationView navigation;
+    private Fragment currentFragment;
     private FragmentOnClickable clickableFragment;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private Fragment openDaysFragment;
+    private Fragment questionsFragment;
+    private Fragment signupFragment;
+    private Fragment notificationsFragment;
+    private Fragment navigationFragment;
 
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-            switch (item.getItemId()) {
-                case R.id.navigation_openDays:
-                    toolbar.setTitle(getResources().getString(R.string.title_openDays));
-                    fragment = new OpenDaysFragment();
-                    loadFragment(fragment);
-                    return true;
-                case R.id.navigation_question:
-                    toolbar.setTitle(getResources().getString(R.string.title_question));
-                    fragment = new QuestionsFragment();
-                    loadFragment(fragment);
-                    return true;
-                case R.id.navigation_signup:
-                    toolbar.setTitle(getResources().getString(R.string.title_signup));
-                    fragment = new SignupFragment();
-                    loadFragment(fragment);
-                    return true;
-                case R.id.navigation_notifications:
-                    toolbar.setTitle(getResources().getString(R.string.title_notifications));
-                    fragment = new NotificationsFragment();
-                    loadFragment(fragment);
-                    return true;
-                case R.id.navigation_route:
-                    toolbar.setTitle(getResources().getString(R.string.title_route));
-                    fragment = new NavigationFragment();
-                    loadFragment(fragment);
-                    return true;
+            if(!item.isChecked()) {
+                switch (item.getItemId()) {
+                    case R.id.navigation_openDays:
+                        if(openDaysFragment == null) openDaysFragment = new OpenDaysFragment();
+                        loadFragment(openDaysFragment, true);
+                        return true;
+                    case R.id.navigation_question:
+                        if(questionsFragment == null) questionsFragment = new QuestionsFragment();
+                        loadFragment(questionsFragment, true);
+                        return true;
+                    case R.id.navigation_signup:
+                        if(signupFragment == null) signupFragment = new SignupFragment();
+                        loadFragment(signupFragment, true);
+                        return true;
+                    case R.id.navigation_notifications:
+                        if(notificationsFragment == null) notificationsFragment = new NotificationsFragment();
+                        loadFragment(notificationsFragment, true);
+                        return true;
+                    case R.id.navigation_route:
+                        if(navigationFragment == null) navigationFragment = new NavigationFragment();
+                        loadFragment(navigationFragment, true);
+                        return true;
+                }
             }
             return false;
+        }
+    };
+
+    private FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
+        @Override
+        public void onBackStackChanged() {
+            Fragment newCurrentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_container);
+            if(newCurrentFragment != null){
+                setCurrentFragment(newCurrentFragment);
+                Menu menu = navigation.getMenu();
+
+                if(currentFragment instanceof OpenDaysFragment){
+                    toolbar.setTitle(getResources().getString(R.string.title_openDays));
+                    menu.findItem(R.id.navigation_openDays).setChecked(true);
+                }else if (currentFragment instanceof QuestionsFragment){
+                    toolbar.setTitle(getResources().getString(R.string.title_question));
+                    menu.findItem(R.id.navigation_question).setChecked(true);
+                }else if (currentFragment instanceof SignupFragment){
+                    toolbar.setTitle(getResources().getString(R.string.title_signup));
+                    menu.findItem(R.id.navigation_signup).setChecked(true);
+                }else if (currentFragment instanceof NotificationsFragment){
+                    toolbar.setTitle(getResources().getString(R.string.title_notifications));
+                    menu.findItem(R.id.navigation_notifications).setChecked(true);
+                }else if (currentFragment instanceof NavigationFragment){
+                    toolbar.setTitle(getResources().getString(R.string.title_route));
+                    menu.findItem(R.id.navigation_route).setChecked(true);
+                }
+            }
         }
     };
 
@@ -61,44 +92,50 @@ public class MainActivity extends AppCompatActivity implements FragmentOnClickab
         setContentView(R.layout.activity_main);
 
         toolbar = getSupportActionBar();
+        navigation = findViewById(R.id.navigation);
 
-        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        getSupportFragmentManager().addOnBackStackChangedListener(mOnBackStackChangedListener);
 
         if (savedInstanceState != null) {
-            //Restore the fragment's instance
-            fragment = getSupportFragmentManager().getFragment(savedInstanceState, "currentFragement");
-            loadFragment(fragment);
+            //Restore the currentFragment's instance
+            Fragment savedFragment = getSupportFragmentManager().getFragment(savedInstanceState, "currentFragment");
+            if(savedFragment != null) loadFragment(savedFragment, false);
         } else {
-            toolbar.setTitle("Open Days");
-            fragment = new OpenDaysFragment();
-            loadFragment(fragment);
+            if(openDaysFragment == null) openDaysFragment = new OpenDaysFragment();
+            loadFragment(openDaysFragment, false);
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        //Save the fragment's instance
-        getSupportFragmentManager().putFragment(outState, "currentFragement", fragment);
+        //Save the currentFragment's instance
+        getSupportFragmentManager().putFragment(outState, "currentFragment", currentFragment);
     }
 
-    private void loadFragment(Fragment fragment){
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    private void loadFragment(Fragment fragment, boolean addToBackStack){
+        String fragmentTag =  fragment.getClass().getName();
+        FragmentManager manager = getSupportFragmentManager();
+        manager.popBackStackImmediate(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        FragmentTransaction transaction = manager.beginTransaction();
         transaction.replace(R.id.frame_container, fragment);
-        transaction.addToBackStack(null);
+        if(addToBackStack)transaction.addToBackStack(fragmentTag);
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         transaction.commit();
 
-        if(fragment instanceof FragmentOnClickable) {
-            clickableFragment = (FragmentOnClickable)fragment;
-        } else {
-            clickableFragment = null;
-        }
+        if(!addToBackStack) setCurrentFragment(fragment);
     }
 
     public void fragmentOnClick(View v){
         if(clickableFragment != null) clickableFragment.fragmentOnClick(v);
+    }
+
+    private void setCurrentFragment(Fragment fragment){
+        currentFragment = fragment;
+        clickableFragment = currentFragment instanceof FragmentOnClickable ? (FragmentOnClickable)currentFragment : null;
     }
 
 }
